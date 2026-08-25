@@ -22,6 +22,21 @@ mcp-servers:
     # the page out from under you mid-task.
     session-scoped: true
 
+# Composes browser-mine so one `browser` grant covers both the clean headless
+# profile and the user's real logged-in Chrome. Safe from the double-listing
+# problem described above precisely because the vocabularies are disjoint
+# (browser_navigate/browser_snapshot vs navigate_page/take_snapshot), so a
+# trait filter cannot confuse the two servers' tools.
+#
+# TRADEOFF, deliberate: this makes the safe-sounding `browser` trait also carry
+# real-Chrome access, which can see every open tab (email, banking, work) and
+# act as the logged-in user. Picking `browser` for a throwaway page fetch now
+# grants that too. Chosen for convenience over a second checkbox; if that ever
+# feels too broad, delete the `bags:` block and install browser-mine on the
+# identity instead, which puts it back behind its own explicit grant.
+bags:
+  - browser-mine
+
 dependencies:
   - name: npx
     reason: runs the browser MCP server
@@ -30,7 +45,11 @@ dependencies:
 
 traits:
   browser:
-    description: Web browsing — navigate, read, and interact with pages
+    description: Web browsing — headless, plus the user's real logged-in Chrome
     access: readwrite
-    namespaces: [browser]
-    skills: [web-browsing]
+    # Both namespaces listed explicitly. A manifest trait that reuses the
+    # auto-trait's name REPLACES it (see getAllTraits in @barry/bags), so the
+    # `bags:` composition above does NOT reach this trait on its own — without
+    # browser-mine spelled out here the grant silently stays headless-only.
+    namespaces: [browser, browser-mine]
+    skills: [web-browsing, real-chrome-setup]
