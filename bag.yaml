@@ -1,4 +1,4 @@
-name: playwright-browsing
+name: playwright
 description: Headless browsing on a clean, isolated profile — no cookies, no logins
 
 # ONE @playwright/mcp server, deliberately.
@@ -12,9 +12,9 @@ description: Headless browsing on a clean, isolated profile — no cookies, no l
 #
 # So headless-vs-headed is a per-run flag, not a second server. `--isolated`
 # keeps each run on a fresh profile; for the user's real logins use the
-# `chrome-browsing` bag, whose vocabulary is distinct and so can coexist.
+# `chrome` bag, whose vocabulary is distinct and so can coexist.
 mcp-servers:
-  playwright-browsing:
+  playwright:
     command: npx
     args: ["-y", "@playwright/mcp@0.0.78", "--headless", "--isolated"]
     # A browser tab is state. Without this every Barry session shares one
@@ -29,8 +29,8 @@ dependencies:
     reason: required by npx
 
 traits:
-  playwright-browsing:
+  playwright:
     description: Headless web browsing — navigate, read, and interact on a clean profile
     access: readwrite
-    namespaces: [playwright-browsing]
+    namespaces: [playwright]
     skills: [web-browsing]
