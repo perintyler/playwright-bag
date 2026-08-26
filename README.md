@@ -1,58 +1,34 @@
-# browser
+# playwright
 
-Web browsing for Barry, via the official
-[`@playwright/mcp`](https://github.com/microsoft/playwright-mcp) server.
+Headless browsing on a clean, isolated profile — no cookies, no logins.
 
-    barry start --traits browser
+Wraps [`@playwright/mcp`](https://github.com/microsoft/playwright-mcp) for the
+`browser_*` tools (navigate, click, snapshot, …), and adds video recording,
+which upstream does not provide.
 
-Headless Chromium on a fresh profile — no cookies, no logins. To browse as the
-user with their real logged-in Chrome, use the **`browser-mine`** pack instead.
+## Video recording
 
-## One Playwright server, deliberately
+`@playwright/mcp` exposes no video flag — only `--output-dir` — verified
+against 0.0.79, the latest. So these tools own a separate browser: Playwright
+accepts `recordVideo` ONLY as a context option at creation time, which cannot
+be attached to an MCP session that is already open.
 
-Session tool filtering resolves traits to a set of bare tool **names**, and
-every `@playwright/mcp` instance exports the same 24 `browser_*` names. A
-second Playwright server — in this pack or a sibling — therefore survives a
-trait filter meant for this one: a session traited for headless was verified to
-receive 48 tools from both namespaces, with no way for the model to tell which
-browser it was driving.
+    start_video_recording   url, output_path, quality (low/medium/high)
+    record_navigate         drive the recording browser
+    record_wait             hold on a page so the video captures it
+    stop_video_recording    closes the context and writes the file
+    video_recording_status
 
-So headless-vs-headed is a per-run flag on this one server, not a second
-server. `browser-mine` can coexist because its vocabulary is entirely
-different.
+The file does not exist until `stop_video_recording` runs — Playwright flushes
+video on context close.
 
-## Access level: `enabled`, not `deferred`
+**Setup:** needs Playwright's own chromium build, separate from what
+`@playwright/mcp` downloads:
 
-The 24 `browser_*` tools cost ~4.2k tokens, about 27% of a session's tool list.
-That looks like a case for `deferred` (hidden from `tools/list`, still callable
-via `tool_search`) — but it isn't. Only a session that explicitly asked for the
-`browser` trait pays that cost, so deferring would hide the tools from the one
-session that requested them and buy a `tool_search` round trip for nothing.
+    npx playwright install chromium
 
-Deferral is for packs that load into every session regardless of intent. Trait
-gating already solves the same problem here, earlier.
+## Recording the user's real browser instead
 
-## Each session gets its own browser
-
-The manifest sets `session-scoped: true`. Barry pools pack connections
-process-wide by default, which for a browser meant every session drove the same
-tab — verified: one session set `window.__barry_marker` and navigated, and an
-independent session read back both.
-
-`session-scoped` moves the pack out of the eager shared pool and keys its
-connection by session id, so each session gets its own browser process,
-reclaimed when the session's transport closes. See `docs/bags.md` in the Barry
-repo.
-
-## Why an upstream server instead of our own tools
-
-This replaces a homegrown `playwright` pack that drove pages by CSS selector
-against 1000 characters of body text. `@playwright/mcp` uses accessibility
-snapshots with stable element refs: more reliable, and cheaper in tokens.
-
-The version is pinned. The pack this replaced used `@latest`, so an upstream
-release could break browsing with no diff on our side.
-
-`skills/web-browsing/` documents the tool names, each transcribed from a live
-`tools/list` — the check the previous pack's skill skipped, which is why every
-call it taught failed.
+This bag is headless, so there is nothing on screen to capture. For the real
+visible Chrome, use the `chrome` bag to drive it and the `screen-recorder` bag
+to capture the display.
