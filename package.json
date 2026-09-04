@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@barry/tools": "link:../../barry/packages/tools",
+    "@barry-rocks/tools": "link:../../barry/packages/tools",
     "playwright": "1.62.1",
     "zod": "3.25.76"
   },
