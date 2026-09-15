@@ -145,26 +145,20 @@ prompt: |-
 
   ## Recording a video
 
-  There is no recording tool. Playwright records per browser *context*, so make a
-  recorded one through `browser_run_code_unsafe` and drive that page:
+  Use the recording tools; do not hand-roll a context through
+  `browser_run_code_unsafe`.
 
-  ```js
-  async (page) => {
-    const browser = page.context().browser();
-    const rec = await browser.newContext({
-      recordVideo: { dir: "/tmp/out", size: { width: 1280, height: 720 } },
-    });
-    const p = await rec.newPage();
-    await p.goto("https://example.com");
-    // ...drive p...
-    await p.close();
-    await rec.close();   // the file is only flushed on context close
-    return "recorded";
-  }
-  ```
+  - `start_video_recording` begins a headless run that records to a file
+  - `record_navigate` drives it to a URL, valid only while recording
+  - `record_wait` holds on the current page so the video captures it
+  - `stop_video_recording` ends the run and writes the file
+  - `video_recording_status` says whether one is in progress
 
-  Sizes: 854×480, 1280×720, 1920×1080. The video lands in `dir` as `.webm`, and
-  appears only after `rec.close()` — checking earlier shows an empty directory.
+  The file does not exist until `stop_video_recording` runs, because Playwright
+  only flushes the video when the browser context closes. Checking earlier shows
+  an empty directory, which looks like failure and is not.
+
+  Recording is headless. For the user's real visible Chrome, see the chrome bag.
 
   ## Cautions
 
