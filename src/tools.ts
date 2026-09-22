@@ -1,4 +1,4 @@
-import { defineTool } from "@barry-rocks/tools";
+import { defineTool } from "@barry-rocks/sdk-bags";
 import { z } from "zod";
 import { activePage, isRecording, startRecording, stopRecording, type Quality } from "./video-session.js";
 
