@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      '@barry-rocks/sdk-bags':
-        specifier: link:../../barry/sdk/bags
-        version: link:../../barry/sdk/bags
+      '@barry-rocks/sdk':
+        specifier: link:../../barry/sdk/lib
+        version: link:../../barry/sdk/lib
       playwright:
         specifier: 1.62.1
         version: 1.62.1

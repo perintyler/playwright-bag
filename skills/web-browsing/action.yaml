@@ -115,7 +115,7 @@ prompt: |-
   `--headless` from the `browser` server args in
   `~/repos/bags/browser/bag.yaml`, then restart MCP:
 
-      launchctl kickstart -k gui/$UID/com.barry.mcp.barry
+      barry service restart barry.engine
 
   New sessions get a visible window; everything else is identical. Put the flag
   back when done. If the user just wants to *see* what happened, prefer
