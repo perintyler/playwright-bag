@@ -16,44 +16,21 @@ description: Headless browsing on a clean, isolated profile — no cookies, no l
 mcp-servers:
   playwright:
     command: npx
-    args: ["-y", "@playwright/mcp@0.0.78", "--headless", "--isolated"]
+    args: [ "-y", "@playwright/mcp@0.0.78", "--headless", "--isolated" ]
     # A browser tab is state. Without this every Barry session shares one
     # connection and therefore one tab, so a concurrent session can navigate
     # the page out from under you mid-task.
     session-scoped: true
 
-# Video recording, which @playwright/mcp cannot do: it exposes no video flag
-# (verified against 0.0.79, the latest), only --output-dir. These tools own a
-# separate browser because Playwright accepts `recordVideo` ONLY as a context
-# option at creation time, so it cannot be attached to a running MCP session.
-#
-# The headed `chrome` bag needs none of this — it drives the real visible
-# browser, which the `screen-recorder` bag captures off the display.
-tools:
-  entry: tools.ts
-
-# The video tools need Playwright's own chromium build, which is NOT the npx
-# download @playwright/mcp uses: `npx playwright install chromium` (~95 MB,
-# cached in ~/Library/Caches/ms-playwright). Without it start_video_recording
-# fails with Playwright's "browser was just installed" banner. Not a
-# `dependencies:` entry because those check for a binary on PATH and this is a
-# cached download, so the check would always report missing.
-tool-metadata:
-  - { toolName: start_video_recording, namespace: playwright, access: write }
-  - { toolName: record_navigate, namespace: playwright, access: write }
-  - { toolName: record_wait, namespace: playwright, access: write }
-  - { toolName: stop_video_recording, namespace: playwright, access: write }
-  - { toolName: video_recording_status, namespace: playwright, access: read }
-
 dependencies:
-  - name: npx
+  npx:
     reason: runs the browser MCP server
-  - name: node
+  node:
     reason: required by npx
 
 traits:
   playwright:
     description: Headless web browsing — navigate, read, and interact on a clean profile
     access: readwrite
-    namespaces: [playwright]
-    skills: [web-browsing]
+    namespaces: [ playwright ]
+    skills: [ web-browsing ]
